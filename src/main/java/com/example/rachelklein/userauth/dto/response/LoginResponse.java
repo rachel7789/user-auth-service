@@ -1,0 +1,82 @@
+package com.example.rachelklein.userauth.dto.response;
+
+import java.util.UUID;
+
+public class LoginResponse {
+
+    private UUID UID;
+    private String sessionToken;
+    private Profile profile;
+    private int statusCode;
+
+    public UUID getUID() {
+        return UID;
+    }
+
+    public void setUID(UUID UID) {
+        this.UID = UID;
+    }
+
+    public String getSessionToken() {
+        return sessionToken;
+    }
+
+    public void setSessionToken(String sessionToken) {
+        this.sessionToken = sessionToken;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    public static class Profile {
+        private String firstName;
+        private String lastName;
+        private String email;
+        private boolean isVerified;
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public boolean isVerified() {
+            return isVerified;
+        }
+
+        public void setVerified(boolean verified) {
+            isVerified = verified;
+        }
+    }
+}
