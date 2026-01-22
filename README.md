@@ -142,8 +142,24 @@ JWT authentication failures return **401 (Unauthorized)**, while business tokens
 
 ### Automated Tests
 
-Due to the limited timeframe of the assignment, automated unit and integration tests were not implemented.  
-The project structure and service design allow such tests to be added easily in the future.
+The project includes **automated unit and integration tests** covering core authentication and account management flows.
+
+**Unit tests** validate:
+- User registration logic (including duplicate email handling)
+- Email verification flow
+- Password reset token generation and expiration handling
+
+**Integration tests** validate:
+- End-to-end registration and login flows
+- Authentication-protected endpoints
+
+Tests are implemented using **JUnit 5**, **Mockito**, and **Spring Boot Test**, and can be executed using:
+
+```bash
+mvn test
+```
+
+The current test suite focuses on critical business logic and security-sensitive flows, and is designed to be easily extended with additional coverage if needed.
 
 ---
 

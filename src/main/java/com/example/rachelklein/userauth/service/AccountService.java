@@ -126,7 +126,7 @@ public class AccountService {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(refreshTokenValue);
         refreshToken.setUser(user);
-        refreshToken.setExpiry(LocalDateTime.now().plusDays(7)); // 7 ימים (אפשר לשנות)
+        refreshToken.setExpiry(LocalDateTime.now().plusDays(7)); // 7 days (configurable).
         refreshTokenRepository.save(refreshToken);
 
         response.setRefreshToken(refreshTokenValue);
@@ -248,7 +248,7 @@ public class AccountService {
 
         User user = stored.getUser();
 
-        // JWT חדש (access token חדש)
+        // New JWT (new access token).
         String newJwt = jwtService.generateToken(user);
 
         RefreshTokenResponse response = new RefreshTokenResponse();

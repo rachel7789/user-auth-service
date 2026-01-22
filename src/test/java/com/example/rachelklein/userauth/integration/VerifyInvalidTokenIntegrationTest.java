@@ -27,7 +27,7 @@ class VerifyInvalidTokenIntegrationTest {
         String email = "invalid.verify@example.com";
         String password = "SecurePass123";
 
-        // REGISTER כדי שהמשתמש יהיה קיים
+        // REGISTER so that the user exists.
         String registerJson = """
                 {
                   "email": "%s",
@@ -45,7 +45,7 @@ class VerifyInvalidTokenIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.verificationToken", not(isEmptyOrNullString())));
 
-        // VERIFY עם טוקן שגוי
+        // VERIFY with an invalid token.
         String verifyJson = """
                 {
                   "token": "%s",

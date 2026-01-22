@@ -54,7 +54,7 @@ class AccountServiceRegisterDuplicateEmailTest {
                 () -> accountService.register(req)
         );
 
-        // verify – לא ממשיכים לשום פעולה נוספת
+        // Verify – do not proceed with any further action.
         verify(userRepository).existsByEmail("user@example.com");
         verifyNoMoreInteractions(userRepository);
         verifyNoInteractions(passwordEncoder, tokenService, jwtService);

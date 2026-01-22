@@ -65,7 +65,7 @@ class AccountServiceUpdateProfilePartialUpdateTest {
 
         UpdateProfileRequest req = new UpdateProfileRequest();
         UpdateProfileRequest.Profile profile = new UpdateProfileRequest.Profile();
-        profile.setPhoneNumber("+972509999999"); // רק זה מתעדכן
+        profile.setPhoneNumber("+972509999999"); // Only this is updated.
         req.setProfile(profile);
 
         // act

@@ -66,7 +66,7 @@ class LoginWrongPasswordIntegrationTest {
                         .content(verifyJson))
                 .andExpect(status().isOk());
 
-        // LOGIN עם סיסמה שגויה
+        // LOGIN with an incorrect password.
         String loginJson = """
                 {
                   "loginID": "%s",

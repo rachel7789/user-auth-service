@@ -51,7 +51,7 @@ class AuthFlowIntegrationTest {
                 .getResponse()
                 .getContentAsString();
 
-        // חילוץ verificationToken מהתגובה (כדי להשתמש בו ב-verify)
+        // Extract the verificationToken from the response (to use it in verify).
         String verificationToken = objectMapper.readTree(registerResponse).get("verificationToken").asText();
 
         // 2) VERIFY

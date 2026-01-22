@@ -49,7 +49,7 @@ class AccountServiceLoginNotVerifiedTest {
         user.setUid(UUID.randomUUID());
         user.setEmail("user@example.com");
         user.setPasswordHash("HASH");
-        user.setIsVerified(false); // קריטי לטסט
+        user.setIsVerified(false); // Critical for testing.
 
         when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("SecurePass123", "HASH")).thenReturn(true);
@@ -60,7 +60,7 @@ class AccountServiceLoginNotVerifiedTest {
         // verify
         verify(userRepository).findByEmail("user@example.com");
         verify(passwordEncoder).matches("SecurePass123", "HASH");
-        verifyNoInteractions(jwtService); // לא אמור להנפיק JWT אם לא מאומת
+        verifyNoInteractions(jwtService); // JWT should not be issued if not verified.
         verify(userRepository, never()).save(any());
     }
 }

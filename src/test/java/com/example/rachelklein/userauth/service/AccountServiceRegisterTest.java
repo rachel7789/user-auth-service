@@ -59,7 +59,7 @@ class AccountServiceRegisterTest {
         when(passwordEncoder.encode("SecurePass123")).thenReturn("HASHED_PASSWORD");
         when(tokenService.generateToken()).thenReturn("VERIFICATION_TOKEN");
 
-        // נוודא שה-save מחזיר User עם uid (כמו שקורה בפועל אחרי persist)
+        // Ensure that save returns a User with a uid (as happens in practice after persist).
         UUID generatedUid = UUID.randomUUID();
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User u = invocation.getArgument(0);
@@ -102,7 +102,7 @@ class AccountServiceRegisterTest {
         verify(userRepository).existsByEmail("user@example.com");
         verify(passwordEncoder).encode("SecurePass123");
         verify(tokenService).generateToken();
-        verifyNoMoreInteractions(jwtService); // register לא אמור לייצר JWT
+        verifyNoMoreInteractions(jwtService); // Register should not generate a JWT.
     }
 }
 

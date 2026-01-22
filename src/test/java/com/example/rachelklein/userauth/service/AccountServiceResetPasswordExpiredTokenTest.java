@@ -47,14 +47,14 @@ class AccountServiceResetPasswordExpiredTokenTest {
 
         User user = new User();
         user.setPasswordResetToken("RESET_TOKEN");
-        user.setPasswordResetTokenExpiry(LocalDateTime.now().minusMinutes(1)); // פג תוקף
+        user.setPasswordResetTokenExpiry(LocalDateTime.now().minusMinutes(1)); // Expired.
 
         when(userRepository.findByPasswordResetToken("RESET_TOKEN")).thenReturn(Optional.of(user));
 
         // act + assert
         assertThrows(ResetTokenExpiredException.class, () -> accountService.resetPassword(req));
 
-        // verify - לא אמור לעדכן סיסמה ולא לשמור
+        // Verify – should not update the password or persist any changes.
         verify(userRepository).findByPasswordResetToken("RESET_TOKEN");
         verifyNoInteractions(passwordEncoder);
         verify(userRepository, never()).save(any());
