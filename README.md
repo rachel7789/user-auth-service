@@ -43,6 +43,18 @@ Throughout development, special attention was given to:
 
 ---
 
+### Bonus Features (Partial / Foundational)
+
+Some optional features were implemented at a **basic or foundational level**, focusing on clean design and future extensibility rather than full production-scale implementations.
+
+- A **basic refresh token infrastructure** was introduced, laying the groundwork for session renewal and revocation flows.
+- Clear separation is maintained between **JWT-based authentication tokens** and **business tokens** (email verification, password reset).
+- **Security-related events** (such as password reset requests and verification flows) are logged for visibility and traceability.
+
+More advanced optional features (rate limiting, account lockout policies, Dockerization, Redis, and 2FA) were intentionally left out due to time constraints, as they were not required for the core assignment.
+
+---
+
 ## Key Technical Decisions
 
 - JWT-based **stateless authentication** (no server-side sessions)
@@ -96,6 +108,8 @@ From the Swagger UI you can:
 ## Database Model
 
 The application uses an **H2 in-memory database**.
+
+H2 Console: Accessible at http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:userauthdb).
 
 ### Main Entity: User
 
