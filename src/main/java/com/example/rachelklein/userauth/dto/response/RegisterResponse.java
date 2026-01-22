@@ -1,21 +1,25 @@
 package com.example.rachelklein.userauth.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.UUID;
 
 public class RegisterResponse {
 
-    private UUID UID;
+    @JsonProperty("UID")
+    private UUID uid;
     private int statusCode;
     private String statusMessage;
+    @JsonProperty("emailVerificationRequired")
     private boolean emailVerificationRequired;
     private String verificationToken;
 
-    public UUID getUID() {
-        return UID;
+    public UUID getUid() {
+        return uid;
     }
 
-    public void setUID(UUID UID) {
-        this.UID = UID;
+    public void setUid(UUID uid) {
+        this.uid = uid;
     }
 
     public int getStatusCode() {

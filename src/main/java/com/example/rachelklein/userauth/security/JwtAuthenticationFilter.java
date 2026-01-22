@@ -1,13 +1,9 @@
 package com.example.rachelklein.userauth.security;
 
-import com.example.rachelklein.userauth.dto.error.ErrorResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -15,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -44,17 +39,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             uid = jwtService.extractUidFromToken(token);
         } catch (Exception ex) {
-            // מחזירים 401 עם ErrorResponse
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-            ErrorResponse error = new ErrorResponse();
-            error.setStatusCode(401);
-            error.setErrorCode("INVALID_TOKEN");
-            error.setErrorMessage("Invalid or expired token");
-            error.setTimestamp(LocalDateTime.now());
-
-            new ObjectMapper().writeValue(response.getOutputStream(), error);
+            // טוקן לא תקין -> לא מכניסים Authentication
+            // נותנים ל-Spring Security להחזיר 401 דרך authenticationEntryPoint
+            filterChain.doFilter(request, response);
             return;
         }
 

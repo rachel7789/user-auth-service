@@ -1,22 +1,29 @@
 package com.example.rachelklein.userauth.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class AccountInfoResponse {
 
-    private UUID UID;
+    @JsonProperty("UID")
+    private UUID uid;
     private Profile profile;
+    @JsonProperty("isVerified")
     private boolean isVerified;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime registrationDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime lastLogin;
 
-    public UUID getUID() {
-        return UID;
+    public UUID getUid() {
+        return uid;
     }
 
-    public void setUID(UUID UID) {
-        this.UID = UID;
+    public void setUid(UUID uid) {
+        this.uid = uid;
     }
 
     public Profile getProfile() {

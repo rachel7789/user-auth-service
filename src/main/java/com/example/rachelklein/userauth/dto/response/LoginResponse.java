@@ -1,20 +1,23 @@
 package com.example.rachelklein.userauth.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.UUID;
 
 public class LoginResponse {
 
-    private UUID UID;
+    @JsonProperty("UID")
+    private UUID uid;
     private String sessionToken;
     private Profile profile;
     private int statusCode;
 
-    public UUID getUID() {
-        return UID;
+    public UUID getUid() {
+        return uid;
     }
 
-    public void setUID(UUID UID) {
-        this.UID = UID;
+    public void setUid(UUID uid) {
+        this.uid = uid;
     }
 
     public String getSessionToken() {
@@ -45,6 +48,7 @@ public class LoginResponse {
         private String firstName;
         private String lastName;
         private String email;
+        @JsonProperty("isVerified")
         private boolean isVerified;
 
         public String getFirstName() {

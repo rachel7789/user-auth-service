@@ -9,6 +9,8 @@ import com.example.rachelklein.userauth.exception.*;
 import com.example.rachelklein.userauth.repository.UserRepository;
 import com.example.rachelklein.userauth.security.JwtService;
 import com.example.rachelklein.userauth.util.TokenService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final JwtService jwtService;
+    private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
     public AccountService(UserRepository userRepository, PasswordEncoder passwordEncoder,
                           TokenService tokenService, JwtService jwtService) {
@@ -64,7 +67,7 @@ public class AccountService {
 
         // בניית Response
         RegisterResponse response = new RegisterResponse();
-        response.setUID(user.getUid());
+        response.setUid(user.getUid());
         response.setStatusCode(200);
         response.setStatusMessage("OK");
         response.setEmailVerificationRequired(true);
@@ -88,13 +91,18 @@ public class AccountService {
             throw new AccountNotVerifiedException("Account not verified");
         }
 
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
+            throw new AccountInactiveException();
+        }
+
         // עדכון lastLogin
         user.setLastLoginDate(LocalDateTime.now());
         userRepository.save(user);
 
         // בניית Response (בלי sessionToken בשלב הזה)
         LoginResponse response = new LoginResponse();
-        response.setUID(user.getUid());
+        response.setUid(
+                user.getUid());
         response.setStatusCode(200);
 
         LoginResponse.Profile profile = new LoginResponse.Profile();
@@ -129,72 +137,17 @@ public class AccountService {
         userRepository.save(user);
     }
 
-    public AccountInfoResponse getAccountInfoByEmail(String email) {
-
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        AccountInfoResponse response = new AccountInfoResponse();
-        response.setUID(user.getUid());
-        response.setVerified(Boolean.TRUE.equals(user.getIsVerified()));
-        response.setRegistrationDate(user.getRegistrationDate());
-        response.setLastLogin(user.getLastLoginDate());
-
-        AccountInfoResponse.Profile profile = new AccountInfoResponse.Profile();
-        profile.setFirstName(user.getFirstName());
-        profile.setLastName(user.getLastName());
-        profile.setEmail(user.getEmail());
-        profile.setBirthDate(user.getBirthDate() != null ? user.getBirthDate().toString() : null);
-        profile.setPhoneNumber(user.getPhoneNumber());
-
-        response.setProfile(profile);
-
-        return response;
-    }
-
-    @Deprecated
-    public AccountInfoResponse getAccountInfoFromAuthHeader(String authorizationHeader) {
-
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new MissingAuthorizationHeaderException();
-        }
-
-        String token = authorizationHeader.substring("Bearer ".length());
-        token = token.replaceAll("\\s+", "");
-        token = token.replaceAll("[^A-Za-z0-9._-]", "");
-
-        UUID uid = jwtService.extractUidFromToken(token);
-
-        User user = userRepository.findById(uid).orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        AccountInfoResponse response = new AccountInfoResponse();
-        response.setUID(user.getUid());
-        response.setVerified(Boolean.TRUE.equals(user.getIsVerified()));
-        response.setRegistrationDate(user.getRegistrationDate());
-        response.setLastLogin(user.getLastLoginDate());
-
-        AccountInfoResponse.Profile profile = new AccountInfoResponse.Profile();
-        profile.setFirstName(user.getFirstName());
-        profile.setLastName(user.getLastName());
-        profile.setEmail(user.getEmail());
-        profile.setBirthDate(user.getBirthDate() != null ? user.getBirthDate().toString() : null);
-        profile.setPhoneNumber(user.getPhoneNumber());
-
-        response.setProfile(profile);
-
-        return response;
-    }
-
     public void requestPasswordReset(PasswordResetRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFoundException::new);
 
-        String resetToken = UUID.randomUUID().toString();
+        String resetToken = tokenService.generateToken();
         user.setPasswordResetToken(resetToken);
         user.setPasswordResetTokenExpiry(LocalDateTime.now().plusHours(1));
 
         userRepository.save(user);
 
-        System.out.println("PASSWORD RESET TOKEN for " + user.getEmail() + ": " + resetToken);
+        log.info("Password reset token for {}: {}", user.getEmail(), resetToken);
     }
 
     public void resetPassword(PasswordResetConfirmRequest request) {
@@ -208,36 +161,6 @@ public class AccountService {
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         user.setPasswordResetToken(null);
         user.setPasswordResetTokenExpiry(null);
-
-        userRepository.save(user);
-    }
-
-    @Deprecated
-    public void updateProfileFromAuthHeader(String authorizationHeader, UpdateProfileRequest request) {
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new MissingAuthorizationHeaderException();
-        }
-
-        String token = authorizationHeader.substring("Bearer ".length());
-        UUID uid = jwtService.extractUidFromToken(token);
-
-        User user = userRepository.findById(uid).orElseThrow(UserNotFoundException::new);
-
-        UpdateProfileRequest.Profile profile = request.getProfile();
-        if (profile != null) {
-            if (profile.getFirstName() != null) {
-                user.setFirstName(profile.getFirstName());
-            }
-            if (profile.getLastName() != null) {
-                user.setLastName(profile.getLastName());
-            }
-            if (profile.getPhoneNumber() != null) {
-                user.setPhoneNumber(profile.getPhoneNumber());
-            }
-            if (profile.getBirthDate() != null) {
-                user.setBirthDate(profile.getBirthDate());
-            }
-        }
 
         userRepository.save(user);
     }
@@ -281,7 +204,7 @@ public class AccountService {
 
     private AccountInfoResponse buildAccountInfoResponse(User user) {
         AccountInfoResponse response = new AccountInfoResponse();
-        response.setUID(user.getUid());
+        response.setUid(user.getUid());
         response.setVerified(Boolean.TRUE.equals(user.getIsVerified()));
         response.setRegistrationDate(user.getRegistrationDate());
         response.setLastLogin(user.getLastLoginDate());

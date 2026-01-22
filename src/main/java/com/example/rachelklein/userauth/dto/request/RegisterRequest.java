@@ -57,6 +57,8 @@ public class RegisterRequest {
 
         private String birthDate; // נשמור כמחרוזת בשלב ה-DTO, נמיר ל-LocalDate ב-Service
 
+        @Pattern(regexp = "^\\+?[0-9]{9,15}$",
+                message = "Invalid phone number format")
         private String phoneNumber;
 
         public String getFirstName() {

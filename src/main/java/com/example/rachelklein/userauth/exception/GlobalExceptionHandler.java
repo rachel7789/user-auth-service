@@ -45,16 +45,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
-    @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<ErrorResponse> handleMissingHeader(MissingRequestHeaderException ex) {
-        ErrorResponse body = new ErrorResponse();
-        body.setStatusCode(401);
-        body.setErrorCode("MISSING_AUTHORIZATION_HEADER");
-        body.setErrorMessage("Missing Authorization header");
-        body.setTimestamp(LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
-    }
-
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException ex) {
 
@@ -127,6 +117,16 @@ public class GlobalExceptionHandler {
         error.setErrorMessage(ex.getMessage());
         error.setTimestamp(LocalDateTime.now());
         return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(AccountInactiveException.class)
+    public ResponseEntity<ErrorResponse> handleAccountInactive(AccountInactiveException ex) {
+        ErrorResponse body = new ErrorResponse();
+        body.setStatusCode(403);
+        body.setErrorCode("ACCOUNT_INACTIVE");
+        body.setErrorMessage(ex.getMessage());
+        body.setTimestamp(LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

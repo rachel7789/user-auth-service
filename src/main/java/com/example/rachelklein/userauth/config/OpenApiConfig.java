@@ -19,6 +19,7 @@ public class OpenApiConfig {
                 .bearerFormat("JWT");
 
         return new OpenAPI()
-                .components(new Components().addSecuritySchemes("bearerAuth", bearerAuth));
+                .components(new Components().addSecuritySchemes("bearerAuth", bearerAuth))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
     }
 }

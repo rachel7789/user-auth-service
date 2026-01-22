@@ -8,9 +8,6 @@ spring:
     username: sa
     password:
 
-  security:
-    enabled: false
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -30,7 +27,5 @@ logging:
 
 app:
   jwt:
-    secret: change-this-secret-to-long-random-string
+    secret: "change-this-to-a-very-long-random-string-at-least-64-characters-1234567890"
     expiration-minutes: 30
-
-
