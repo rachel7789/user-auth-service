@@ -39,8 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             uid = jwtService.extractUidFromToken(token);
         } catch (Exception ex) {
-            // טוקן לא תקין -> לא מכניסים Authentication
-            // נותנים ל-Spring Security להחזיר 401 דרך authenticationEntryPoint
+            // Invalid token → authentication is not set.
+            // Let Spring Security return 401 via the authenticationEntryPoint.
             filterChain.doFilter(request, response);
             return;
         }

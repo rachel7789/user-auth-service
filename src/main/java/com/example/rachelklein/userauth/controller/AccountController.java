@@ -3,9 +3,11 @@ package com.example.rachelklein.userauth.controller;
 import com.example.rachelklein.userauth.dto.request.*;
 import com.example.rachelklein.userauth.dto.response.AccountInfoResponse;
 import com.example.rachelklein.userauth.dto.response.LoginResponse;
+import com.example.rachelklein.userauth.dto.response.RefreshTokenResponse;
 import com.example.rachelklein.userauth.dto.response.RegisterResponse;
 import com.example.rachelklein.userauth.service.AccountService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -66,6 +68,13 @@ public class AccountController {
             @Valid @RequestBody UpdateProfileRequest request
     ) {
         AccountInfoResponse response = accountService.updateProfile(authentication, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @SecurityRequirements
+    @PostMapping("/token/refresh")
+    public ResponseEntity<RefreshTokenResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        RefreshTokenResponse response = accountService.refreshSessionToken(request.getRefreshToken());
         return ResponseEntity.ok(response);
     }
 

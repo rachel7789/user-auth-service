@@ -29,6 +29,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .headers(h -> h.frameOptions(frame -> frame.disable()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -66,7 +67,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // H2 console (פיתוח)
+                        // H2 console (development)
                         .requestMatchers("/h2-console/**").permitAll()
 
                         // Public endpoints
@@ -75,7 +76,8 @@ public class SecurityConfig {
                                 "/api/accounts/login",
                                 "/api/accounts/verify",
                                 "/api/accounts/password/reset-request",
-                                "/api/accounts/password/reset"
+                                "/api/accounts/password/reset",
+                                "/api/accounts/token/refresh"
                         ).permitAll()
 
                         // Protected endpoints

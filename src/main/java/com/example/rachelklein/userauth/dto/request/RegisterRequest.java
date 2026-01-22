@@ -55,7 +55,7 @@ public class RegisterRequest {
         @NotBlank
         private String lastName;
 
-        private String birthDate; // נשמור כמחרוזת בשלב ה-DTO, נמיר ל-LocalDate ב-Service
+        private String birthDate; // Store as a string at the DTO level, convert to LocalDate in the service.
 
         @Pattern(regexp = "^\\+?[0-9]{9,15}$",
                 message = "Invalid phone number format")

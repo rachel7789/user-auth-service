@@ -3,18 +3,22 @@
 ## Table of Contents
 1. [Overview](#overview)
 2. [Development Approach](#development-approach)
-3. [Use of AI Tools](#use-of-ai-tools)
-4. [Key Technical Decisions](#key-technical-decisions)
-5. [Additional Notes](#additional-notes)
+3. [Key Technical Decisions](#key-technical-decisions)
+4. [Project Setup](#project-setup)
+5. [Running the Application](#running-the-application)
+6. [API Documentation](#api-documentation)
+7. [Database Model](#database-model)
+8. [Testing](#testing)
+9. [Use of AI Tools](#use-of-ai-tools)
+10. [Additional Notes & Assumptions](#additional-notes--assumptions)
 
 ---
 
 ## Overview
 
-This project was developed as part of a home assignment for a **Java Developer** position at **Super-Pharm**.
+This project was developed independently as a home assignment for a **Java Developer** position at **Super-Pharm**.
 
-My primary focus in this project was not to “implement as many features as possible”, but to build a **clean, structured, and readable system**, similar to how I would design a real service in a professional production environment.  
-If time allows, I plan to continue developing features that are more significant from a professional and architectural perspective.
+The primary goal of this project was not to maximize the number of features, but to design and implement a **clean, structured, and readable authentication service**, similar to how a real production-grade system would be built in a professional environment.
 
 ---
 
@@ -22,57 +26,141 @@ If time allows, I plan to continue developing features that are more significant
 
 The project was developed in **clear, incremental stages**, where each stage was implemented, tested, and stabilized before moving on to the next one:
 
-- Infrastructure
-- Registration
+- Infrastructure and base configuration
+- User registration
 - Email verification
-- Login
+- Login flow
 - JWT-based authentication
 - Security configuration
 - Profile management
 
-I intentionally avoided writing large amounts of code at once or jumping to advanced solutions before establishing a stable and reliable foundation.
-
-Throughout the process, I consistently emphasized:
+Throughout development, special attention was given to:
 
 - Clear separation between **Controller / Service / Security** layers
 - Consistent and unified error handling
-- Readable, maintainable code that is easy to extend
+- Readable and maintainable code
+- Explicit handling of authentication and authorization flows
+
+---
+
+## Key Technical Decisions
+
+- JWT-based **stateless authentication** (no server-side sessions)
+- **Spring Security** with a dedicated JWT authentication filter
+- **BCrypt** for secure password hashing
+- **Swagger / OpenAPI** for API documentation and manual testing
+- **H2 in-memory database** for simplicity and fast execution
+- Unified error response format across the entire API
+- JWT refresh mechanism using persistent refresh tokens
+
+---
+
+## Project Setup
+
+### Prerequisites
+- **Java 11 or higher (tested with Java 17)**
+- **Maven 3.8 or higher**
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/rachel7789/user-auth-service
+cd user-auth-service
+```
+
+## Running the Application
+
+To run the application locally, execute the following command from the project root:
+
+```bash
+mvn clean spring-boot:run
+```
+
+The application will start on: http://localhost:8080
+
+## API Documentation
+
+Swagger UI is available at:
+
+http://localhost:8080/swagger-ui/index.html
+
+From the Swagger UI you can:
+
+- Explore all available API endpoints
+- Execute requests directly
+- Authenticate using JWT via the **Authorize** button
+- View example request and response payloads
+
+---
+
+## Database Model
+
+The application uses an **H2 in-memory database**.
+
+### Main Entity: User
+
+The User entity includes the following fields:
+
+- `uid` (UUID, Primary Key)
+- `email` (unique, not null)
+- `passwordHash`
+- `firstName`
+- `lastName`
+- `birthDate`
+- `phoneNumber`
+- `isVerified`
+- `isActive`
+- `registrationDate`
+- `lastLoginDate`
+- `verificationToken`
+- `verificationTokenExpiry`
+- `passwordResetToken`
+- `passwordResetTokenExpiry`
+
+The schema is automatically generated using **JPA/Hibernate**.
+
+---
+
+## Testing
+
+### Manual Testing
+
+All API flows were manually tested using **Swagger UI**, including:
+
+- Registration
+- Email verification
+- Login
+- Authenticated profile access
+- Profile update
+- Password reset flows
+
+All API endpoints, example requests and responses are documented and tested via Swagger UI.
+
+A Postman collection was not provided, as Swagger fully covers the required API documentation and testing flows.
+
+JWT authentication failures return **401 (Unauthorized)**, while business tokens (email verification / password reset) return **400 (Bad Request)**.
+
+### Automated Tests
+
+Due to the limited timeframe of the assignment, automated unit and integration tests were not implemented.  
+The project structure and service design allow such tests to be added easily in the future.
 
 ---
 
 ## Use of AI Tools
 
 During development, I used **ChatGPT** as an external working tool.
+I deliberately chose this tool over others because maintaining **full control over the code** was important to me.
 
-The choice to use this tool (and not others) was deliberate. My main priority was to maintain **full control over the codebase** and over every technical decision made during development.
-
-The tool was used for:
-- Guidance and reasoning
-- Validation of approaches
-- Refinement and structuring of solutions
-
-It was **not** used for automatic or blind code generation.
-
-Although other tools (such as Gemini) are widely used and highly capable, I chose ChatGPT because it is already well aligned with my personal working style from previous independent projects. Given the limited timeframe of the assignment, I preferred a familiar and reliable tool that allows me to work efficiently while staying fully accountable for the final result.
+The tool was used for guidance, validation, refinement, and structured drafting, but **not for automatic code generation**.
+I preferred ChatGPT over alternatives such as Gemini because it is already aligned with my working style from previous independent projects, and given the limited timeframe, I chose a familiar and reliable tool.
 
 All architectural, logical, and security-related decisions were reviewed, fully understood, and implemented by me.
 
 ---
 
-## Key Technical Decisions
+## Additional Notes & Assumptions
 
-- JWT-based **stateless authentication** (no sessions)
-- **Spring Security** with a dedicated JWT authentication filter
-- **Swagger / OpenAPI** for API documentation and manual testing
-- **H2** database for simplicity and fast execution
-- Unified error response format, including security-related errors
-
----
-
-## Additional Notes
-
-The project fulfills all **base requirements** of the assignment and was designed in a way that allows:
-
-- Easy future extension (roles, refresh tokens, external databases)
-- Integration as part of a larger system
-- Clear understanding of the codebase by developers who did not write it  
+- The project fully implements all mandatory functional and technical requirements of the assignment.
+- Bonus features (refresh tokens, rate limiting, Docker, etc.) were intentionally left out, as they were marked optional.
+- The system was designed to be easily extended with additional security and scalability features.

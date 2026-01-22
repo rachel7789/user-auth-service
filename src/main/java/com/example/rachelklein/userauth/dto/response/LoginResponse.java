@@ -11,6 +11,7 @@ public class LoginResponse {
     private String sessionToken;
     private Profile profile;
     private int statusCode;
+    private String refreshToken;
 
     public UUID getUid() {
         return uid;
@@ -42,6 +43,14 @@ public class LoginResponse {
 
     public void setStatusCode(int statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public static class Profile {

@@ -3,9 +3,12 @@ package com.example.rachelklein.userauth.service;
 import com.example.rachelklein.userauth.dto.request.*;
 import com.example.rachelklein.userauth.dto.response.AccountInfoResponse;
 import com.example.rachelklein.userauth.dto.response.LoginResponse;
+import com.example.rachelklein.userauth.dto.response.RefreshTokenResponse;
 import com.example.rachelklein.userauth.dto.response.RegisterResponse;
+import com.example.rachelklein.userauth.entity.RefreshToken;
 import com.example.rachelklein.userauth.entity.User;
 import com.example.rachelklein.userauth.exception.*;
+import com.example.rachelklein.userauth.repository.RefreshTokenRepository;
 import com.example.rachelklein.userauth.repository.UserRepository;
 import com.example.rachelklein.userauth.security.JwtService;
 import com.example.rachelklein.userauth.util.TokenService;
@@ -23,14 +26,16 @@ import java.util.UUID;
 public class AccountService {
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final JwtService jwtService;
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
-    public AccountService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                          TokenService tokenService, JwtService jwtService) {
+    public AccountService(UserRepository userRepository,RefreshTokenRepository refreshTokenRepository,
+                          PasswordEncoder passwordEncoder, TokenService tokenService, JwtService jwtService) {
         this.userRepository = userRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.jwtService = jwtService;
@@ -38,12 +43,12 @@ public class AccountService {
 
     public RegisterResponse register(RegisterRequest request) {
 
-        // בדיקת אימייל קיים
+        // Check for existing email.
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateEmailException("Email already exists");
         }
 
-        // מיפוי DTO → Entity
+        // DTO to Entity mapping.
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
@@ -59,13 +64,13 @@ public class AccountService {
         user.setIsVerified(false);
         user.setIsActive(true);
 
-        // יצירת token לאימות מייל (זמני)
+        // Create a temporary email verification token
         user.setVerificationToken(tokenService.generateToken());
         user.setVerificationTokenExpiry(LocalDateTime.now().plusHours(24));
 
         userRepository.save(user);
 
-        // בניית Response
+        // Build the response.
         RegisterResponse response = new RegisterResponse();
         response.setUid(user.getUid());
         response.setStatusCode(200);
@@ -78,15 +83,15 @@ public class AccountService {
 
     public LoginResponse login(LoginRequest request) {
 
-        // שליפה לפי אימייל (loginID)
+        // Retrieve by email (login ID).
         User user = userRepository.findByEmail(request.getLoginID()).orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
 
-        // בדיקת סיסמה
+        // Password validation.
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new InvalidCredentialsException("Invalid credentials");
         }
 
-        // בדיקת אימות מייל
+        // Email verification check.
         if (!Boolean.TRUE.equals(user.getIsVerified())) {
             throw new AccountNotVerifiedException("Account not verified");
         }
@@ -95,11 +100,11 @@ public class AccountService {
             throw new AccountInactiveException();
         }
 
-        // עדכון lastLogin
+        // Update lastLogin.
         user.setLastLoginDate(LocalDateTime.now());
         userRepository.save(user);
 
-        // בניית Response (בלי sessionToken בשלב הזה)
+        // Build the response (without sessionToken at this stage).
         LoginResponse response = new LoginResponse();
         response.setUid(
                 user.getUid());
@@ -113,6 +118,18 @@ public class AccountService {
 
         response.setProfile(profile);
         response.setSessionToken(jwtService.generateToken(user));
+
+        // Refresh Token (for JWT refresh capability)
+        refreshTokenRepository.deleteAllByUser(user);
+
+        String refreshTokenValue = tokenService.generateToken();
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setToken(refreshTokenValue);
+        refreshToken.setUser(user);
+        refreshToken.setExpiry(LocalDateTime.now().plusDays(7)); // 7 ימים (אפשר לשנות)
+        refreshTokenRepository.save(refreshToken);
+
+        response.setRefreshToken(refreshTokenValue);
 
         return response;
     }
@@ -219,6 +236,28 @@ public class AccountService {
         response.setProfile(p);
         return response;
     }
+
+    public RefreshTokenResponse refreshSessionToken(String refreshToken) {
+
+        RefreshToken stored = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(InvalidTokenException::new);
+
+        if (stored.getExpiry().isBefore(LocalDateTime.now())) {
+            throw new ExpiredTokenException();
+        }
+
+        User user = stored.getUser();
+
+        // JWT חדש (access token חדש)
+        String newJwt = jwtService.generateToken(user);
+
+        RefreshTokenResponse response = new RefreshTokenResponse();
+        response.setSessionToken(newJwt);
+        response.setStatusCode(200);
+
+        return response;
+    }
+
 
 
 }
